@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../src")
-from org.tbollmeier.transfero.scanner import Scanner
+from org.tbollmeier.transfero import (Grammar, Scanner)
 
 code = """
 SELECT * FROM users where name="drbolle";
@@ -9,7 +9,7 @@ SELECT * FROM users where name="drbolle";
 print(code)
 print()
 
-scanner = Scanner(case_sensitive = False)\
+g = Grammar(case_sensitive = False)\
     .add_comment("(*", "*)")\
     .add_comment("--", "\n")\
     .add_keyword("SELECT")\
@@ -21,10 +21,10 @@ scanner = Scanner(case_sensitive = False)\
     .add_token("ID", "[a-zA-Z_][a-zA-Z_0-9]*")\
     .add_token("STRING", '"[^"]*"')
 
-tokens = scanner.find_tokens(code)
+token_stream = Scanner(g).find_tokens(code)
 
-for token in tokens:
-    print("Token: ", token)
+while token_stream.has_next():
+    print(token_stream.advance())
 
 
 
