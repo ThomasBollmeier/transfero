@@ -10,6 +10,18 @@ class Ast(object):
     def add_child(self, child):
         self._children.append(child)
         
+    def add_children_by_name(self, source_ast, name):
+        children = source_ast.find_children_by_name(name)
+        for child in children:
+            child.id = ""
+            self.add_child(child)
+
+    def add_children_by_id(self, source_ast, id_):
+        children = source_ast.find_children_by_id(id_)
+        for child in children:
+            child.id = ""
+            self.add_child(child)
+        
     def get_children(self):
         return self._children
     

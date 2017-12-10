@@ -32,17 +32,9 @@ sql.rule('select',
 @sql.ast_transform('select')
 def select(ast):
     ret = Ast('select_stmt')
-    fields = ast.find_children_by_id('fields')[0]
-    fields.id = ""
-    ret.add_child(fields)
-    table = ast.find_children_by_id('table')[0]
-    table.id = ""
-    ret.add_child(table)
-    where = ast.find_children_by_id('where')
-    if where:
-        where = where[0]
-        where.id = ""
-        ret.add_child(where)
+    ret.add_children_by_id(ast, 'fields')
+    ret.add_children_by_id(ast, 'table')
+    ret.add_children_by_id(ast, 'where')
     return ret
 
 sql.rule('field_list', TokenType('ASTERISK'))
@@ -57,11 +49,27 @@ def field_list(ast):
 sql.rule('where_clause',
          Sequence(
             TokenType('WHERE'),
+            Rule('conditions')))
+@sql.ast_transform('where_clause')
+def where_clause(ast):
+    return ast.find_children_by_name('conditions')[0]
+    
+sql.rule('conditions',
+         Sequence(
             TokenType('ID', 'field'),
             TokenType('ASSIGN'),
             OneOf(
-                TokenType('ID', 'rhs'),
-                TokenType('STRING', 'rhs'))))
+                TokenType('ID', 'expr'),
+                TokenType('STRING', 'expr'))))
+@sql.ast_transform('conditions')
+def condition(ast):
+    ret = Ast('conditions')
+    cond = Ast('condition')
+    ret.add_child(cond)
+    cond.add_children_by_id(ast, 'field')
+    cond.add_children_by_id(ast, 'expr')
+    return ret
+
 
 ast = Parser(sql).parse(code)
 
