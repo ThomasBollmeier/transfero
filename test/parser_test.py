@@ -27,7 +27,8 @@ sql.rule('select',
             Rule('field_list', 'fields'),
             TokenType('FROM'),
             TokenType('ID', 'table'),
-            Optional(Rule('where_clause', 'where'))),
+            Optional(Rule('where_clause', 'where')),
+            TokenType('SEMICOLON')),
         is_root=True)
 @sql.ast_transform('select')
 def select(ast):
@@ -71,9 +72,13 @@ def condition(ast):
     return ret
 
 
-ast = Parser(sql).parse(code)
+sql_parser = Parser(sql)
 
-print(ast.to_json())
+ast = sql_parser.parse(code)
+if ast:
+    print(ast.to_json())
+else:
+    print(sql_parser.error())
 
 
 
