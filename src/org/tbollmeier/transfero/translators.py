@@ -49,7 +49,7 @@ class Sequence(object):
             nodes = element.translate(grammar, token_stream)
             if nodes is None:
                 token_stream.undo()
-                return []
+                return None
             ret += nodes
         token_stream.commit()
         return ret
