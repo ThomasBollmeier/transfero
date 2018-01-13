@@ -1,3 +1,5 @@
+import os
+
 class Ast(object):
     
     def __init__(self, name, value="", id=""):
@@ -69,3 +71,39 @@ class Ast(object):
                 ch = "\\{}".format(ch)
             ret += ch
         return ret
+    
+    def to_xml(self, offset=0, delta=2): 
+        res = "<{}".format(self.name)
+        attrs = self._attrs_to_str()
+        if attrs:
+            res += " " + attrs
+        if not self.value and not self._children:
+            res += "/>"
+            res = self._leftpad(offset, res)
+            return res
+        res += ">"
+        if self.value:
+            res += self.value
+        if self._children:
+            res = self._leftpad(offset, res) + os.linesep
+            for child in self._children:
+                res += child.to_xml(offset+delta, delta) + os.linesep
+            res += self._leftpad(offset, "</{}>".format(self.name))
+        else:
+            res += "</{}>".format(self.name)
+            res = self._leftpad(offset, res)
+        return res
+    
+    def _attrs_to_str(self):
+        if self.id:
+            res = "id=\"{}\"".format(self.id)
+        else:
+            res = ""
+        for aname in self._attrs:
+            if res:
+                res += " "
+            res += "{}=\"{}\"".format(aname, self._attrs[aname])
+        return res
+    
+    def _leftpad(self, offset, s):
+        return " " * offset + s

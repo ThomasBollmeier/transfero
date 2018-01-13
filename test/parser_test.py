@@ -76,7 +76,7 @@ sql_parser = Parser(sql)
 
 ast = sql_parser.parse(code)
 if ast:
-    print(ast.to_json())
+    print(ast.to_xml())
 else:
     print(sql_parser.error())
 
